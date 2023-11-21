@@ -1,0 +1,33 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+group = 'de.bitcoinstealer.delta'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.bitcoinj:bitcoinj-core:0.16.2' // Use the latest version available// Gson
+    implementation 'com.google.code.gson:gson:2.8.9' // Use the latest version available
+}
+
+application {
+    mainClassName = 'de.bitcoinstealer.delta.Main'
+}
+
+shadowJar {
+    archiveBaseName = 'Bitcoin-Stealer'
+    archiveVersion = ''
+    archiveClassifier = 'final'
+}
+
+test {
+    useJUnitPlatform()
+}
