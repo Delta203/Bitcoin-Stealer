@@ -8,10 +8,9 @@ import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.script.Script;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Objects;
@@ -21,7 +20,7 @@ public class Main {
   public static String bitcoinScannerUrl = "https://btcscan.org/api/address/";
   public static int debugCount = 100;
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     try {
       debugCount = Integer.decode(args[0]);
     } catch (Exception e) {
@@ -34,20 +33,41 @@ public class Main {
       byte[] publicKey = key.getPubKey();
 
       Address address = createAddressFromKey(key);
-      String walletContent = readWalletContent(address);
+      String walletContent = null;
+      // forces getting wallet content
+      while (walletContent == null) {
+        try {
+          walletContent = readWalletContent(address);
+        } catch (IOException e) { // no response from api
+        }
+      }
       JsonObject walletJson = convertStringToJson(walletContent);
 
       // check wallet amount
       int funded = walletJson.get("chain_stats").getAsJsonObject().get("funded_txo_sum").getAsInt();
       int spend = walletJson.get("chain_stats").getAsJsonObject().get("spent_txo_sum").getAsInt();
       if (funded - spend != 0) { // -> wallet with bitcoins found
+        System.out.println("\nScan (" + count + ") BITCOIN WALLET FOUND!!!");
         System.out.println(
             "Private Key: "
                 + key.getPrivateKeyAsWiF(NetworkParameters.fromID(NetworkParameters.ID_MAINNET)));
         System.out.println("Public Key: " + Utils.HEX.encode(publicKey));
         System.out.println("Bitcoin Address: " + address.toString());
         System.out.println(walletContent);
-        break;
+        // write key data into .txt file
+        try (PrintWriter writer =
+            new PrintWriter(new FileOutputStream(new File("found-wallets.txt"), true))) {
+          writer.println(
+              "Private Key: "
+                  + key.getPrivateKeyAsWiF(NetworkParameters.fromID(NetworkParameters.ID_MAINNET)));
+          writer.println("Public Key: " + Utils.HEX.encode(publicKey));
+          writer.println("Bitcoin Address: " + address.toString());
+          writer.println(walletContent);
+          writer.close();
+        } catch (IOException e) {
+          // stop while loop
+          break;
+        }
       }
       if (count % debugCount == 0) {
         System.out.println("Scanned " + count + " bitcoin addresses \t" + address.toString());
@@ -106,7 +126,6 @@ public class Main {
    * @return JsonObject
    */
   public static JsonObject convertStringToJson(String jsonString) {
-    JsonParser jsonParser = new JsonParser();
     return JsonParser.parseString(jsonString).getAsJsonObject();
   }
 }
