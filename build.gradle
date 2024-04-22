@@ -4,8 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
-group = 'de.bitcoinstealer.delta'
-version = '1.0-SNAPSHOT'
+group = 'de.bitcoinstealer.delta203'
+version = '1.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ dependencies {
 }
 
 application {
-    mainClassName = 'de.bitcoinstealer.delta.Main'
+    mainClassName = 'de.bitcoinstealer.delta203.Main'
 }
 
 shadowJar {

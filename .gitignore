@@ -1,5 +1,12 @@
 .gradle
-build/
+build/libs/*
+!build/libs/Bitcoin-Stealer-final.jar
+build/classes/
+build/distributions/
+build/generated/
+build/scripts/
+build/scriptsShadow/
+build/tmp/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/

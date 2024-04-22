@@ -1,0 +1,2 @@
+url: https://btcscan.org/api/address/
+debug: 100
